@@ -6,7 +6,7 @@ import 'dotenv/config';
 import { JwtModule } from '@nestjs/jwt';
 import { LeaguesModule } from './leagues/leagues.module';
 import { League } from './leagues/models/league.model';
-import { DbTypeDto } from './users/dto/db-type.dto';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -22,12 +22,16 @@ import { DbTypeDto } from './users/dto/db-type.dto';
       entities: [User, League],
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
     }),
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '7d' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        global: true,
+        signOptions: { expiresIn: '7d' },
+      }),
+      inject: [ConfigService],
     }),
   ],
-  providers: [],
+  exports: [JwtModule],
 })
 export class AppModule {}
