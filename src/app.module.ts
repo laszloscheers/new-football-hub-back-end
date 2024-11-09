@@ -6,13 +6,14 @@ import 'dotenv/config';
 import { JwtModule } from '@nestjs/jwt';
 import { LeaguesModule } from './leagues/leagues.module';
 import { League } from './leagues/models/league.model';
+import { DbTypeDto } from './users/dto/db-type.dto';
 
 @Module({
   imports: [
     UsersModule,
     LeaguesModule,
     TypeOrmModule.forRoot({
-      type: 'mariadb',
+      type: process.env.DB_TYPE as any,
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT),
       username: process.env.DB_USERNAME,
