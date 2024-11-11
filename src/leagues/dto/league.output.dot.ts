@@ -1,4 +1,4 @@
-import { League } from "../models/league.model";
+import { League } from '../entities/league.entity';
 
 export class LeagueOutputDto {
   constructor(
@@ -8,6 +8,7 @@ export class LeagueOutputDto {
     readonly ownerEmail: string,
   ) {}
 
+  // Static method to create a LeagueOutputDto from a League entity
   static fromEntity(league: League) {
     return new LeagueOutputDto(
       league.id,

@@ -10,6 +10,7 @@ import { Role } from '../../common/enums/rol.enum';
 import { Language } from '../enums/language.enum';
 import { Mode } from '../enums/user-mode.enum';
 
+// Creating a DTO to validate the user sign-up request
 export class CreateUserDto {
   @IsString()
   @MinLength(3)

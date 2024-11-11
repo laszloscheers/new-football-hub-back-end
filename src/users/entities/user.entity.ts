@@ -1,8 +1,9 @@
 import { Role } from '../../common/enums/rol.enum';
-import { League } from '../../leagues/models/league.model';
+import { League } from '../../leagues/entities/league.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Language } from '../enums/language.enum';
 import { Mode } from '../enums/user-mode.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class User {

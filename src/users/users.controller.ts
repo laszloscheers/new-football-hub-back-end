@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -15,50 +16,69 @@ import { IsPublic } from './decorators/is-public.decorator';
 import { UserLogInDto } from './dto/login-user.dto';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../common/enums/rol.enum';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+// Swagger tag for Users controller
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  //-------------- PUBLIC METHODS --------------//
+
+  // Public route for user sign up
   @IsPublic()
   @Post('signup')
   async signUp(@Body() dto: UserSignUpDto) {
     await this.usersService.signUp(dto);
   }
 
+  // Public route for user login
   @IsPublic()
   @Post('login')
   async logIn(@Body() dto: UserLogInDto) {
     return this.usersService.logIn(dto);
   }
 
+  //-------------- ADMIN METHODS --------------//
+
+  // Route to create a new user
+  @ApiBearerAuth() // Adding Bearer authentication for documentation so token can be added
   @Post()
   @Roles(Role.ADMIN)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.createUser(createUserDto);
   }
 
+  // Route to get all users
+  @ApiBearerAuth()
   @Get()
   @Roles(Role.ADMIN)
-  findAll() {
-    return this.usersService.findAll();
+  findAllUsers() {
+    return this.usersService.findAllUsers();
   }
 
+  // Route to get a user by ID
+  @ApiBearerAuth()
   @Get(':id')
   @Roles(Role.ADMIN)
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOneUserById(@Param('id', ParseIntPipe) id: string) {
+    return this.usersService.findOneUserById(+id);
   }
 
+  // Route to update a user by ID
+  @ApiBearerAuth()
   @Patch(':id')
   @Roles(Role.ADMIN)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateUser(+id, updateUserDto);
   }
 
+  // Route to delete a user by ID
+  @ApiBearerAuth()
   @Delete(':id')
   @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  removeUser(@Param('id') id: string) {
+    return this.usersService.removeUser(+id);
   }
 }
