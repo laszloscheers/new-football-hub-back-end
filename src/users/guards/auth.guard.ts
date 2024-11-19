@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,7 +19,7 @@ export class AuthGuard implements CanActivate {
   // Implementing canActivate method to check if the user is authenticated
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers['authorization'];
+    const token = this.extractTokenFromHeader(request);
 
     // Checking if the route is public
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
@@ -52,5 +53,11 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  // Private method to extract the token from the header
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

@@ -3,7 +3,7 @@ import { League } from '../../leagues/entities/league.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Language } from '../enums/language.enum';
 import { Mode } from '../enums/user-mode.enum';
-import { ApiProperty } from '@nestjs/swagger';
+import { PasswordResetToken } from 'src/password-reset-token/entities/password-reset-token.entity';
 
 @Entity()
 export class User {
@@ -39,4 +39,11 @@ export class User {
 
   @OneToMany((type) => League, (league) => league.owner, { nullable: false })
   leagues: League[];
+
+  @OneToMany(
+    (type) => PasswordResetToken,
+    (passwordResetToken) => passwordResetToken.owner,
+    { nullable: false },
+  )
+  passwordResetTokens: PasswordResetToken[];
 }

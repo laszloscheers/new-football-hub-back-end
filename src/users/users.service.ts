@@ -24,14 +24,14 @@ export class UsersService {
   private findByEmailWithPassword(email: string): Promise<User> {
     return this.userRepository.findOne({
       where: { email },
-      select: ['id', 'name', 'email', 'hashPassword', 'role'], // Selecting specific fields including password
+      select: ['id', 'name', 'surname', 'email', 'hashPassword', 'role'], // Selecting specific fields including password
     });
   }
 
   //-------------- PUBLIC METHODS --------------//
 
   // Method to handle user sign up
-  async signUp(dto: UserSignUpDto): Promise<void> {
+  async signUp(dto: UserSignUpDto): Promise<{ name: string; email: string }> {
     // Check if user already exists
     const user = await this.findByEmailWithPassword(dto.email);
     if (user) {
@@ -52,33 +52,52 @@ export class UsersService {
 
     // Save the user to the database
     await this.userRepository.save(newUser);
+    return {
+      name: dto.name,
+      email: dto.email,
+    };
   }
 
   // Method to handle user login
-  async logIn(dto: UserLogInDto): Promise<{ token: string }> {
-    const user = await this.findByEmailWithPassword(dto.email);
-
+  async logIn(dto: UserLogInDto): Promise<{
+    name: string;
+    surname: string;
+    email: string;
+    role: string;
+    token: string;
+  }> {
     // Find user by email including the password
+    const user = await this.findByEmailWithPassword(dto.email);
     if (!user) {
       throw new UnauthorizedException(`Email ${dto.email} does not exist`);
     }
 
     // Compare the provided password with the stored hash password
     const matches = await bcrypt.compare(dto.password, user.hashPassword);
-
     if (!matches) {
       throw new UnauthorizedException(
         'The password does not match this user password',
       );
     }
 
+    // Create the payload for the JWT token
+    const payload = {
+      id: user.id,
+      name: user.name,
+      surname: user.surname,
+      email: user.email,
+      role: user.role,
+    };
+
     // Generate JWT token and return it
+    const token = await this.jwtService.signAsync(payload);
+
     return {
-      token: await this.jwtService.signAsync({
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      }),
+      name: user.name,
+      surname: user.surname,
+      email: user.email,
+      role: user.role,
+      token,
     };
   }
 
@@ -114,16 +133,38 @@ export class UsersService {
     return user;
   }
 
+  // Method to find one user by ID
+  async findOneUserByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new BadRequestException(`User with email: ${email} not found`);
+    }
+    return user;
+  }
+
   // Method to update a user
   async updateUser(
     id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<UpdateResult> {
     await this.findOneUserById(id); // Ensure user exists
-    return await this.userRepository.update(id, {
-      ...updateUserDto,
-      updatedAt: new Date(), // Update the updatedAt field
-    });
+    if (updateUserDto.password) {
+      return await this.userRepository.update(id, {
+        name: updateUserDto?.name,
+        surname: updateUserDto?.surname,
+        preferredMode: updateUserDto?.preferredMode,
+        preferredLanguage: updateUserDto?.preferredLanguage,
+        role: updateUserDto?.role,
+        email: updateUserDto?.email,
+        hashPassword: await bcrypt.hash(updateUserDto.password, 12), // Hashing the password
+        updatedAt: new Date(), // Update the updatedAt field
+      });
+    } else {
+      return await this.userRepository.update(id, {
+        ...updateUserDto,
+        updatedAt: new Date(), // Update the updatedAt field
+      });
+    }
   }
 
   // Method to remove a user

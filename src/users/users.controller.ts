@@ -17,6 +17,7 @@ import { UserLogInDto } from './dto/login-user.dto';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../common/enums/rol.enum';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { User } from './entities/user.entity';
 
 // Swagger tag for Users controller
 @ApiTags('Users')
@@ -30,7 +31,7 @@ export class UsersController {
   @IsPublic()
   @Post('signup')
   async signUp(@Body() dto: UserSignUpDto) {
-    await this.usersService.signUp(dto);
+    const user = await this.usersService.signUp(dto);
   }
 
   // Public route for user login
@@ -58,12 +59,20 @@ export class UsersController {
     return this.usersService.findAllUsers();
   }
 
-  // Route to get a user by ID
+  // Route to get a user by email
   @ApiBearerAuth()
   @Get(':id')
   @Roles(Role.ADMIN)
-  findOneUserById(@Param('id', ParseIntPipe) id: string) {
+  findOneUserById(@Param('id', ParseIntPipe) id: string): Promise<User> {
     return this.usersService.findOneUserById(+id);
+  }
+
+  // Route to get a user by email
+  @ApiBearerAuth()
+  @Get('/email/:email')
+  @Roles(Role.ADMIN)
+  findOneUserByEmail(@Param('email') email: string): Promise<User> {
+    return this.usersService.findOneUserByEmail(email);
   }
 
   // Route to update a user by ID

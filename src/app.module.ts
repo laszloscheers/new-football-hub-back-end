@@ -7,11 +7,17 @@ import { JwtModule } from '@nestjs/jwt';
 import { LeaguesModule } from './leagues/leagues.module';
 import { League } from './leagues/entities/league.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PasswordResetTokenModule } from './password-reset-token/password-reset-token.module';
+import { PasswordResetToken } from './password-reset-token/entities/password-reset-token.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './users/guards/auth.guard';
+import { RolesGuard } from './users/guards/roles.guard';
 
 @Module({
   imports: [
     UsersModule,
     LeaguesModule,
+    PasswordResetTokenModule,
     TypeOrmModule.forRoot({
       type: process.env.DB_TYPE as any, // Database type
       host: process.env.DB_HOST, // Database host
@@ -19,7 +25,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       username: process.env.DB_USERNAME, // Database username
       password: process.env.DB_PASSWORD, // Database password
       database: process.env.DB_NAME, // Database name
-      entities: [User, League], // Entities to be used
+      entities: [User, League, PasswordResetToken], // Entities to be used
       synchronize: process.env.DB_SYNCHRONIZE === 'true', // Synchronize database schema depending on the environment
     }),
     // Configuring JWT module asynchronously so the JWT secret can be injected from the environment variables
@@ -34,5 +40,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   exports: [JwtModule],
+  providers: [
+    {
+      provide: APP_GUARD, // Providing AuthGuard as a global guard
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD, // Providing RolesGuard as a global guard
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

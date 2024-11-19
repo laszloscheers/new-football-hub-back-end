@@ -16,14 +16,7 @@ import { AppModule } from '../app.module';
   controllers: [UsersController], // Registering UsersController
   providers: [
     UsersService, // Registering UsersService
-    {
-      provide: APP_GUARD, // Providing AuthGuard as a global guard
-      useClass: AuthGuard,
-    },
-    {
-      provide: APP_GUARD, // Providing RolesGuard as a global guard
-      useClass: RolesGuard,
-    },
   ],
+  exports: [TypeOrmModule],
 })
 export class UsersModule {}

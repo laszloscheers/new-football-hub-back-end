@@ -2,19 +2,16 @@ import { User } from '../../users/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class League {
+export class PasswordResetToken {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
+  expiresAt: Date;
 
   @Column()
-  createdAt: Date;
+  token: string;
 
-  @Column()
-  updatedAt: Date;
-
-  @ManyToOne((type) => User, (user) => user.leagues)
+  @ManyToOne((type) => User, (user) => user.passwordResetTokens)
   owner: User;
 }
