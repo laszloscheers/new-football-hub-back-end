@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserSignUpDto } from './dto/signup-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserLogInDto } from './dto/login-user.dto';
+import { GetUSerDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -134,10 +135,14 @@ export class UsersService {
   }
 
   // Method to find one user by ID
-  async findOneUserByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ email });
+  async findOneUserByEmail(getUserDto: GetUSerDto): Promise<User> {
+    const user = await this.userRepository.findOneBy({
+      email: getUserDto.email,
+    });
     if (!user) {
-      throw new BadRequestException(`User with email: ${email} not found`);
+      throw new BadRequestException(
+        `User with email: ${getUserDto.email} not found`,
+      );
     }
     return user;
   }

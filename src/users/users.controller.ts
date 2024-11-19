@@ -18,6 +18,7 @@ import { Roles } from './decorators/roles.decorator';
 import { Role } from '../common/enums/rol.enum';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { GetUSerDto } from './dto/get-user.dto';
 
 // Swagger tag for Users controller
 @ApiTags('Users')
@@ -69,10 +70,11 @@ export class UsersController {
 
   // Route to get a user by email
   @ApiBearerAuth()
-  @Get('/email')
+  @Post('/email')
   @Roles(Role.ADMIN)
-  findOneUserByEmail(@Body('email') email: string): Promise<User> {
-    return this.usersService.findOneUserByEmail(email);
+  findOneUserByEmail(@Body() getUserDto: GetUSerDto): Promise<User> {
+    console.log(getUserDto);
+    return this.usersService.findOneUserByEmail(getUserDto);
   }
 
   // Route to update a user by ID
