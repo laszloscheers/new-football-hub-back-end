@@ -73,7 +73,6 @@ export class UsersController {
   @Post('/email')
   @Roles(Role.ADMIN)
   findOneUserByEmail(@Body() getUserDto: GetUSerDto): Promise<User> {
-    console.log(getUserDto);
     return this.usersService.findOneUserByEmail(getUserDto);
   }
 
