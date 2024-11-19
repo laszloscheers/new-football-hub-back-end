@@ -69,9 +69,9 @@ export class UsersController {
 
   // Route to get a user by email
   @ApiBearerAuth()
-  @Get('/email/:email')
+  @Get('/email')
   @Roles(Role.ADMIN)
-  findOneUserByEmail(@Param('email') email: string): Promise<User> {
+  findOneUserByEmail(@Body('email') email: string): Promise<User> {
     return this.usersService.findOneUserByEmail(email);
   }
 
