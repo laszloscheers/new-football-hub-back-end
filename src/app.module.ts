@@ -12,6 +12,8 @@ import { PasswordResetToken } from './password-reset-token/entities/password-res
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './users/guards/auth.guard';
 import { RolesGuard } from './users/guards/roles.guard';
+import { PusherService } from './pusher/pusher.service';
+import { PusherController } from './pusher/pusher.controller';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { RolesGuard } from './users/guards/roles.guard';
       provide: APP_GUARD, // Providing RolesGuard as a global guard
       useClass: RolesGuard,
     },
+    PusherService,
   ],
+  controllers: [PusherController],
 })
 export class AppModule {}
