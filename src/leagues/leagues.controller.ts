@@ -15,6 +15,7 @@ import { ActiveUser } from '../common/decorators/active-user.decorator';
 import { ActiveUserInterface } from '../common/interfaces/active-user.interface';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateLeagueDto } from './dto/update-league.dto';
+import { DeleteLeagueDto } from './dto/delete-league.dto';
 
 // Documentation Swagger tag and authentication for Leagues
 @ApiTags('Leagues')
@@ -58,11 +59,11 @@ export class LeaguesController {
   }
 
   // Route to delete a league
-  @Delete(':id')
+  @Delete('')
   removeLeague(
-    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: DeleteLeagueDto,
     @ActiveUser() user: ActiveUserInterface,
   ) {
-    return this.leaguesService.removeLeague(id, user.id);
+    return this.leaguesService.removeLeague(dto, user.id);
   }
 }
